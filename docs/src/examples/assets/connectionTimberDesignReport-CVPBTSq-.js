@@ -15486,27 +15486,23 @@ function calcPossibleFastener(height, fastenerDiameter, axialForce, distances, F
   let [a1, a2, a3, a4, e1] = distances;
   let fastenerCheck = 1;
   let noTotalReq, noPerpPos, noAxial = 0, noAxialEffective, noTotal = 0, noTotalEffective = 0, F_vrdTotal = 0, sheetLength = 0;
-  noTotalReq = roundToBase(Math.abs(axialForce) / (F_vrd * (sheetNo * 2)), 1);
-  noPerpPos = Math.floor((height - 2 * a4) / a2 * 0.8);
-  a4 = (height - a2 * (noPerpPos - 1)) / 2;
-  noAxial = roundToBase(noTotalReq / noPerpPos + 2, 1);
-  noAxialEffective = effectiveNumber(noAxial, a1, fastenerDiameter);
-  noTotal = noPerpPos * noAxial;
-  noTotalEffective = noAxialEffective * noPerpPos;
-  F_vrdTotal = F_vrd * noTotalEffective * (sheetNo * 2);
-  fastenerCheck = Math.abs(axialForce) / F_vrdTotal;
-  sheetLength = a1 * noAxial + a3 * 2;
-  return [
-    noTotal,
-    noTotalEffective,
-    noAxial,
-    noAxialEffective,
-    noPerpPos,
-    F_vrdTotal,
-    fastenerCheck,
-    [a1, a2, a3, a4, e1],
-    sheetLength
-  ];
+  while (true) {
+    noTotalReq = roundToBase(Math.abs(axialForce) / (F_vrd * (sheetNo * 2)), 1);
+    noPerpPos = Math.floor((height - 2 * a4) / a2 * 0.8);
+    a4 = (height - a2 * (noPerpPos - 1)) / 2;
+    noAxial = roundToBase(noTotalReq / noPerpPos + 2, 1);
+    noAxialEffective = effectiveNumber(noAxial, a1, fastenerDiameter);
+    noTotal = noPerpPos * noAxial;
+    noTotalEffective = noAxialEffective * noPerpPos;
+    F_vrdTotal = F_vrd * noTotalEffective * (sheetNo * 2);
+    fastenerCheck = Math.abs(axialForce) / F_vrdTotal;
+    sheetLength = a1 * noAxial + a3 * 2;
+    if (fastenerCheck < 0.95) {
+      sheetLength = e1 + a1 * noAxial + a3 * 2;
+      break;
+    }
+  }
+  return [noTotal, noTotalEffective, noAxial, noAxialEffective, noPerpPos, F_vrdTotal, fastenerCheck, [a1, a2, a3, a4, e1], sheetLength];
 }
 function calcStability(timberGrade, length, width, height, axialForce, chi) {
   const [
@@ -15620,6 +15616,7 @@ function calcStability(timberGrade, length, width, height, axialForce, chi) {
     etaMax = Math.max(...L_eta123);
   }
   return [
+    E_05,
     L_lamb,
     L_lamb_rel,
     lamb_relm,
@@ -15785,6 +15782,7 @@ function timberBarConnectionDesigner(timberBarConnectionDesignerLocalInput) {
     sheetNo
   );
   const [
+    E005,
     L_lamb,
     L_lamb_rel,
     lamb_relm,
@@ -15845,6 +15843,7 @@ function timberBarConnectionDesigner(timberBarConnectionDesignerLocalInput) {
     Anv,
     VeffRd,
     etaBlockFailure,
+    E005,
     L_lamb,
     L_lamb_rel,
     lamb_relm,
@@ -35306,6 +35305,7 @@ function connectionTimberDesignReport(designInput, designOutput) {
       <h3>Fastener Check</h3>
     </button>
     <div class="content" style="display: none;">
+      <p class="caption">EN 1995-1-1 Abs. 8.2.3</p>
       <table>
         <tr>
           <th>diameter</th>
@@ -35326,7 +35326,8 @@ function connectionTimberDesignReport(designInput, designOutput) {
           <td>${o2.FvrdTotal.toFixed(2)} kN</td>
         </tr>
       </table>
-
+      <p>Design axial load</p>
+      <p>${renderMath(` N_{ed} = ${axialForces[elementIndex]} `)} kN</p>
       <p>Fastener Capacity Check</p>
       <p>
         ${renderMath(
@@ -35437,7 +35438,7 @@ function connectionTimberDesignReport(designInput, designOutput) {
       <p>Tensile strength</p>
       <p>${renderMath(`f_{u} = ${o2.fub} \\frac{N}{mm^2}`)}</p>
       <p>${renderMath(`f_{y} = 435 \\frac{N}{mm^2}`)}</p>
-      <p>${renderMath(`d_{0} = d + 0.6 mm = ${i2.fastenerDiameter} + 6 `)} mm</p>
+      <p>${renderMath(`d_{0} = d + 0.6 mm = ${i2.fastenerDiameter}.6 `)} mm</p>
       <p>Effective areas</p>
       <p>${renderMath(` L_{h} = a_{2} \\cdot (n_{perp} - 1) = ${o2.Lh} `)} mm</p>
       <p>
@@ -35448,7 +35449,9 @@ function connectionTimberDesignReport(designInput, designOutput) {
       </p>
       <p>
         ${renderMath(
-    ` A_{nt} = (L_{h} - (n_{axial} - 1) \\cdot d_{0}) \\cdot t = ${o2.Ant} cm^2`
+    ` A_{nt} = (L_{h} - (n_{axial} - 1) \\cdot d_{0}) \\cdot t = ${o2.Ant.toFixed(
+      0
+    )} cm^2`
   )}
       </p>
       <p>
@@ -35467,52 +35470,57 @@ function connectionTimberDesignReport(designInput, designOutput) {
       <p>Utilization</p>
       <p>
         ${renderMath(
-    ` \\eta = \\frac{ N_{ed} }{ V_{eff.Rd}} = ${(o2.etaBlockFailure * 100).toFixed(0)} %`
+    ` \\eta = \\frac{ N_{ed} }{ V_{eff.Rd}} = ${(o2.etaBlockFailure * 100).toFixed(0)}`
   )}
+        %
       </p>
     </div>
   `;
-  let reportStabilityCheck = x`
+  designOutput.connectionTimberDesign.map((v2) => [v2.E005]).flat();
+  let lamb = designOutput.connectionTimberDesign.map((v2) => [v2.L_lamb]).flat();
+  let lamb_rel = designOutput.connectionTimberDesign.map((v2) => [v2.L_lamb_rel]).flat();
+  let L_ky = designOutput.connectionTimberDesign.map((v2) => [v2.L_ky]).flat();
+  let L_kc = designOutput.connectionTimberDesign.map((v2) => [v2.L_kc]).flat();
+  designOutput.connectionTimberDesign.map((v2) => [v2.k_crit]).flat();
+  designOutput.connectionTimberDesign.map((v2) => [v2.lamb_relm]).flat();
+  let etaStability = designOutput.connectionTimberDesign.map((v2) => [v2.etaStability]).flat();
+  let reportYesStabilityCheck = x`
     <button class="collapsible" @click=${toggleView}>
-      <h3>Axial Block Failure Check</h3>
+      <h3>Stability Check</h3>
     </button>
     <div class="content" style="display: none;">
-      <p class="caption">EN 1995-1-1 Abs. 6.1.8</p>
-      <p>Tensile strength</p>
-      <p>${renderMath(`f_{u} = ${o2.fub} \\frac{N}{mm^2}`)}</p>
-      <p>${renderMath(`f_{y} = 435 \\frac{N}{mm^2}`)}</p>
-      <p>${renderMath(`d_{0} = d + 0.6 mm = ${i2.fastenerDiameter} + 6 `)} mm</p>
-      <p>Effective areas</p>
-      <p>${renderMath(` L_{h} = a_{2} \\cdot (n_{perp} - 1) = ${o2.Lh} `)} mm</p>
+      <p class="caption">EN 1995-1-1 Abs. 6.3</p>
+      <p>Slenderness Ratio</p>
       <p>
         ${renderMath(
-    ` L_{v} = a_{1} \\cdot (n_{axial} - 1) + e_{1} = ${o2.Lv} `
+    `\\lambda = \\frac{\\beta*L}{i_{z}} = ${lamb[elementIndex][1].toFixed(
+      2
+    )}`
   )}
-        mm
+      </p>
+      <p>Relative Slenderness</p>
+      <p>
+        ${renderMath(
+    `\\lambda_{rel} = \\frac{\\lambda}{\\pi}*\\sqrt{\\frac{f_{c0k}}{E_{05}}} = ${lamb_rel[elementIndex][1].toFixed(2)}`
+  )}
       </p>
       <p>
         ${renderMath(
-    ` A_{nt} = (L_{h} - (n_{axial} - 1) \\cdot d_{0}) \\cdot t = ${o2.Ant} cm^2`
+    `k_{zz} = 0.5*(1+0.1*(\\lambda_{relz}-0.3)+\\lambda_{relz}^2) = ${L_ky[elementIndex][1].toFixed(2)}`
   )}
       </p>
+      <p>Buckling Coefficient</p>
       <p>
         ${renderMath(
-    ` A_{nv} = 2 \\cdot (L_{v} - (n_{perp} - 0.5) \\cdot d_{0}) \\cdot t = ${o2.Anv} cm^2`
+    `k_{cz} = \\frac{1}{k_{zz}+\\sqrt{k_{zz}^2-\\lambda_{relz}^2}} = ${L_kc[elementIndex][1].toFixed(2)}`
   )}
       </p>
-      <p>Resistance</p>
+      <p>Stability Check</p>
       <p>
         ${renderMath(
-    ` V_{eff.Rd} = \\frac{f_{u} \\cdot A_{nt}}{1.25} + \\frac{f_{y} \\cdot A_{nv}}{ \\sqrt{3} + 1 } = ${o2.VeffRd} cm^2`
+    `\\eta_{z} = \\frac{\\sigma_{cd}}{k_{cz} * f_{c0d}} = ${(etaStability[elementIndex] * 100).toFixed(0)}`
   )}
-      </p>
-      <p>Design axial load</p>
-      <p>${renderMath(` N_{ed} = ${axialForces[elementIndex]} `)} kN</p>
-      <p>Utilization</p>
-      <p>
-        ${renderMath(
-    ` \\eta = \\frac{ N_{ed} }{ V_{eff.Rd}} = ${(o2.etaBlockFailure * 100).toFixed(0)} %`
-  )}
+        %
       </p>
     </div>
   `;
@@ -35525,15 +35533,17 @@ function connectionTimberDesignReport(designInput, designOutput) {
     </div>
   `;
   let reportMemberCheck;
-  if (o2.force > 0) {
+  let reportStabilityCheck;
+  let axialForce = designOutput.designInput.map((v2) => [v2.axialForce]).flat();
+  if (axialForce[elementIndex] > 0) {
     reportMemberCheck = reportTensionCheck;
   } else {
     reportMemberCheck = reportCompressionCheck;
   }
-  if (o2.force > 0) {
+  if (axialForce[elementIndex] > 0) {
     reportStabilityCheck = reportNoStabilityCheck;
   } else {
-    reportStabilityCheck = reportStabilityCheck;
+    reportStabilityCheck = reportYesStabilityCheck;
   }
   let reportContent = x`
     ${reportHeader} ${reportHeading}

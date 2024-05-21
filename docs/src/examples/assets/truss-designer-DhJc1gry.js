@@ -1,6 +1,6 @@
 import { a as app } from "./app-CVhM8A18.js";
 import { a as analyze } from "./analyze-DkU8KasY.js";
-import { c as calculateElementAngle, t as timberBarConnectionDesigner, x, r as renderMath, l as logo, a as connectionTimberDesignReport, d as design, f as frameTimberDesign, b as connectionTimberDesign } from "./connectionTimberDesignReport-Br5e5uGf.js";
+import { c as calculateElementAngle, t as timberBarConnectionDesigner, x, r as renderMath, l as logo, a as connectionTimberDesignReport, d as design, f as frameTimberDesign, b as connectionTimberDesign } from "./connectionTimberDesignReport-CVPBTSq-.js";
 import "./_commonjsHelpers-Dm6U3U_N.js";
 function createTruss(span, spacing, webType, leftHeight, rightHeight, leftOffset, rightOffset, positionOffset = 0) {
   const divisions = Math.round(span / spacing);
