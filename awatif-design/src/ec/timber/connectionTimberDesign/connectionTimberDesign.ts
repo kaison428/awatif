@@ -70,7 +70,7 @@ export function connectionTimberDesign(
     const axialForce = axialForces[0];
 
     // get the angle
-    const beamAngle = calculateElementAngle(
+    const [beamAngle, beamAngle2] = calculateElementAngle(
       nodes[designInput.node],
       nodes[elements[element][0]],
       nodes[elements[element][1]]
