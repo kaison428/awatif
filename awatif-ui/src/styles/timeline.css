@@ -48,6 +48,25 @@
   cursor: pointer; /* Cursor on hover */
 }
 
+#upload-button {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 20px;
+  width: 80px;
+  margin-right: 1rem;
+  margin-top: 1rem;
+}
+
+#chart {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  position: absolute;
+  bottom: 0px;
+  height: 120px;
+}
+
 .player {
   display: flex;
   flex-direction: row;

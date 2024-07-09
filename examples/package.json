@@ -25,6 +25,7 @@
     "awatif-design": "^0.0.12",
     "awatif-fem": "^0.0.12",
     "awatif-ui": "^0.0.12",
+    "google-charts": "^2.0.0",
     "mathjs": "^12.4.2",
     "three": "^0.164.1"
   }
