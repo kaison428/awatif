@@ -3,8 +3,10 @@ import {
   AnalysisOutputs,
   MassAnalysisInput,
   FrameAnalysisInput,
-} from "../../../awatif-data-structure/src/index.ts";
-import { Node, Element, AnalysisInput } from "../../awatif-ui/";
+  Node,
+  Element,
+  AnalysisInput,
+} from "../../../awatif-data-structure";
 import { getTransformationMatrix } from "../../../awatif-ui/src/objects/utils/getTransformationMatrix.ts";
 import * as math from "mathjs";
 
@@ -43,7 +45,9 @@ export function analyzeDynamically(
         .done()
     ) as number[];
 
-    x.forEach((_, i) => {x[i] = tempX[i];});
+    x.forEach((_, i) => {
+      x[i] = tempX[i];
+    });
 
     console.log(x);
     v = math.chain(x).subtract(xn).divide(dt).done() as number[];
@@ -72,9 +76,9 @@ export function analyzeDynamically(
         position: currPosition,
       });
     });
-    
+
     console.log("output", output);
-    
+
     analysisOutputs[step] = output;
   }
 

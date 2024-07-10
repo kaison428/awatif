@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   server: {
     port: 4600,
-    open: "earthquake/index.html",
+    open: "src/2d-truss/index.html",
   },
   base: "./", // needed to resolve assets
   root: "./src",

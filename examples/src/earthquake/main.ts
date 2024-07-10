@@ -1,4 +1,5 @@
-import { app, Node, Element, AnalysisInput, Model } from "../../awatif-ui/";
+import { app, Model } from "../../../awatif-ui/";
+import { Node, Element, AnalysisInput } from "../../../awatif-data-structure";
 import { analyzeDynamically } from "./analyzeDynamically.ts";
 
 const nodes: Node[] = [
