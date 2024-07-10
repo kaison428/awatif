@@ -30,8 +30,8 @@ const analysisInputs: AnalysisInput[] = [
     support: [true, true, true],
   },
   {
-    node: 1,
-    load: [-200 * 9.81, 0, 0],
+    node: 5,
+    load: [-2, 0, 0],
   },
   {
     node: 0,

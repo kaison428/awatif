@@ -45,6 +45,8 @@ export function analyzeDynamically(
         .done()
     ) as number[];
 
+    console.log("x", x);
+
     v = math.chain(x).subtract(xn).divide(dt).done() as number[];
 
     // enforce constraints
@@ -52,7 +54,7 @@ export function analyzeDynamically(
       if ("node" in a && "support" in a) {
         const nid = a.node;
         a.support.forEach((s, i) => {
-          if (s) x[i + nid] = 0;
+          if (s) x[i + nid * a.support.length] = nodes[nid][i];
         });
       }
     });
