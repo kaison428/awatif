@@ -4,7 +4,8 @@
   "description": "Awatif Examples",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build": "tsc && vite build",
+    "test": "jest"
   },
   "keywords": [
     "awatif",
@@ -16,6 +17,10 @@
   "author": "Mohamed Adil",
   "license": "MIT",
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.3",
     "typescript": "~5.4.5",
     "vite": "~5.2.10"
   },

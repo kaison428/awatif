@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   server: {
     port: 4600,
-    open: "src/2d-truss/index.html",
+    open: "src/earthquake/index.html",
   },
   base: "./", // needed to resolve assets
   root: "./src",
@@ -22,6 +22,7 @@ export default defineConfig({
         "portal-frame": "src/portal-frame/index.html",
         "truss-designer": "src/truss-designer/index.html",
         dynamic: "src/dynamic/index.html",
+        earthquake: "src/earthquake/index.html",
         report: "src/report/index.html",
       },
     },
