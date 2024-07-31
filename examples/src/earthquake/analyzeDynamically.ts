@@ -82,19 +82,20 @@ export function analyzeDynamically(
     const dofs: any = getDOFs(nodes);
 
     nodes.forEach((_, nid) => {
-      const currPosition = math.subset(
-        x,
-        math.index(dofs[nid])
-      ); 
-      
-      const currCoord = convertVector(currPosition, 3, nodeToCoord) as PositionAnalysisOutput["position"];
+      const currPosition = math.subset(x, math.index(dofs[nid]));
+
+      const currCoord = convertVector(
+        currPosition,
+        3,
+        nodeToCoord
+      ) as PositionAnalysisOutput["position"];
       output.push({
         node: nid,
         position: currCoord,
       });
     });
 
-    console.log("output:", output)
+    console.log("output:", output);
 
     analysisOutputs[step] = output;
   }
@@ -122,9 +123,13 @@ export function F(
   const xzNodes = nodes.map((node) => convertVector(node, 3, conversion2D));
 
   // convert positional vector x to XZ plane coordinates
-  const xExpanded: number[][] = nodes.map((node, i) => (node.map((_, j) => x[i * node.length + j])))
-  const xzX: number[] = xExpanded.map((x) => convertVector(x, 3, conversion2D)).flat();
-  
+  const xExpanded: number[][] = nodes.map((node, i) =>
+    node.map((_, j) => x[i * node.length + j])
+  );
+  const xzX: number[] = xExpanded
+    .map((x) => convertVector(x, 3, conversion2D))
+    .flat();
+
   // force calculation
   const numDOFs2D = 3;
   let f_nodal: number[] = Array(xzNodes.length * numDOFs2D).fill(0);
@@ -140,6 +145,8 @@ export function F(
       });
     }
   });
+
+  console.log("f_ext", f_ext);
 
   f_nodal = math.add(f_nodal, f_ext);
 
@@ -182,12 +189,18 @@ export function F(
     const f_member = math.multiply(k_local, d_local);
 
     // transform force in member axis to nodal axis
+
     f_nodal = math.subset(
       f_nodal,
       math.index(dof_local),
-      math.multiply(math.transpose(Ti), f_member)
+      math.subtract(
+        math.subset(f_nodal, math.index(dof_local)),
+        math.multiply(math.transpose(Ti), f_member)
+      )
     );
   });
+
+  console.log("f_nodal = " + f_nodal);
 
   const conversion3D = [
     { initDim: 0, newDim: 0 },
@@ -195,8 +208,12 @@ export function F(
     { initDim: 2, newDim: 4 },
   ];
 
-  const f_nodal_expanded = xzNodes.map((node, i) => (node.map((_, j) => f_nodal[i * node.length + j])));
-  const f_nodal_3D = f_nodal_expanded.map((f) => convertVector(f, 6, conversion3D));
+  const f_nodal_expanded = xzNodes.map((node, i) =>
+    node.map((_, j) => f_nodal[i * node.length + j])
+  );
+  const f_nodal_3D = f_nodal_expanded.map((f) =>
+    convertVector(f, 6, conversion3D)
+  );
 
   return f_nodal_3D.flat();
 }
@@ -226,7 +243,7 @@ function findKLocal(
   x1: number[],
   x2: number[],
   edgeProperties: FrameAnalysisInput
-) {
+): number[][] {
   const d: number[] = math.subtract(x2, x1);
 
   const L: number = math.norm(d) as number;
