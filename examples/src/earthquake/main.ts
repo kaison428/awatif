@@ -1,6 +1,7 @@
 import { app, Model } from "../../../awatif-ui/";
-import { Node, Element, AnalysisInput } from "../../../awatif-data-structure";
+import { Node, Element, AnalysisInput, LoadAnalysisInput } from "../../../awatif-data-structure";
 import { analyzeDynamically } from "./analyzeDynamically.ts";
+import { loadTimeHistoryFromCSV } from "./dataParser.ts";
 
 const nodes: Node[] = [
   [0, 0, 0],
@@ -119,6 +120,8 @@ const analysisInputs: AnalysisInput[] = [
   },
 ];
 
+const timeHistoryAnalysisInputs: Record<number, LoadAnalysisInput> = await loadTimeHistoryFromCSV(".\tests\analyzeDynamically.test.ts", 0);
+
 const dynamicSettings = {
   time: 5,
   timeStep: 0.001,
@@ -128,9 +131,14 @@ const analysisOutputs = analyzeDynamically(
   nodes,
   elements,
   analysisInputs,
+  timeHistoryAnalysisInputs,
   dynamicSettings
 );
 
+// TODO:
+// 1. create a sample ground motion (e.g. GM_1) and store as json - done
+// 2. incorporate that into analysis module, under external forces that vary based on timesteps - todo!
+// 3. connect file data to analysis module thru parameters maybe?
 app({
   onParameterChange: (): Model => ({
     nodes,

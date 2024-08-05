@@ -6,6 +6,7 @@ import {
   Node,
   Element,
   AnalysisInput,
+  LoadAnalysisInput,
 } from "../../../awatif-data-structure";
 import * as math from "mathjs";
 
@@ -13,6 +14,7 @@ export function analyzeDynamically(
   nodalCoordinates: Node[],
   elements: Element[],
   analysisInputs: AnalysisInput[],
+  timeHistoryAnalysisInputs: Record<number, LoadAnalysisInput>,
   { time: t, timeStep: dt }: { time: number; timeStep: number }
 ): AnalysisOutputs {
   const analysisOutputs: AnalysisOutputs = {};
