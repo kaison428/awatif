@@ -35,10 +35,6 @@ const analysisInputs: AnalysisInput[] = [
     support: [true, true, true, true, true, true],
   },
   {
-    node: 5,
-    load: [100, 0, 0, 0, 0, 0],
-  },
-  {
     node: 0,
     mass: [1, 1, 1, massMomentOfInertia, massMomentOfInertia, massMomentOfInertia],
   },
@@ -120,10 +116,10 @@ const analysisInputs: AnalysisInput[] = [
   },
 ];
 
-const timeHistoryAnalysisInputs: Record<number, LoadAnalysisInput> = await loadTimeHistoryFromCSV(".\tests\analyzeDynamically.test.ts", 0);
+const timeHistoryAnalysisInputs: Record<number, LoadAnalysisInput> = await loadTimeHistoryFromCSV("./data/GM_1.csv", 0);
 
 const dynamicSettings = {
-  time: 5,
+  time: 20,
   timeStep: 0.001,
 };
 

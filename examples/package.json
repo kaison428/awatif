@@ -2,6 +2,7 @@
   "name": "examples",
   "version": "0.0.12",
   "description": "Awatif Examples",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

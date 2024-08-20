@@ -10,6 +10,8 @@ import {
 } from "../../../awatif-data-structure";
 import * as math from "mathjs";
 
+const G = 98.1;
+
 export function analyzeDynamically(
   nodalCoordinates: Node[],
   elements: Element[],
@@ -58,10 +60,12 @@ export function analyzeDynamically(
 
     console.log("F(x): ", F(x, nodes, elements, analysisInputs));
 
+    const earthquakeLoads = getEarthquakeLoads(step * dt, timeHistoryAnalysisInputs, nodes, analysisInputs);
+
     x = math.add(
       y,
       math
-        .chain(F(x, nodes, elements, analysisInputs))
+        .chain(F(x, nodes, elements, analysisInputs.concat(earthquakeLoads)))
         .dotDivide(m)
         .multiply(dt ** 2)
         .done()
@@ -314,4 +318,32 @@ function convertVector(
   });
 
   return newVector;
+}
+
+function getEarthquakeLoads(
+  t: number,
+  timeHistoryAnalysisInputs: Record<number, LoadAnalysisInput>,
+  nodes: number[][],
+  analysisInputs: AnalysisInput[]
+): LoadAnalysisInput[] {
+  {
+    const accel = timeHistoryAnalysisInputs[Number(t.toFixed(3))].load;
+
+    const earthquakeLoads = nodes.map((_, nid) => {
+      const massAnalysisInput = analysisInputs.find(
+        (a) => "mass" in a && "node" in a && a.node === nid
+      ) as MassAnalysisInput;
+
+      const nodalMass = massAnalysisInput?.mass ?? [0, 0, 0, 0, 0, 0];
+
+      console.log("nodalMass: " + nodalMass);
+
+      return {
+        node: nid,
+        load: math.dotMultiply(math.multiply(accel, G), nodalMass) as [number, number, number, number, number, number],
+      } as LoadAnalysisInput;
+    });
+
+    return earthquakeLoads;
+  }
 }

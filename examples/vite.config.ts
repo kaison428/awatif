@@ -6,7 +6,7 @@ export default defineConfig({
     open: "src/earthquake/index.html",
   },
   base: "./", // needed to resolve assets
-  root: "./src",
+  root: "./",
   build: {
     outDir: "../../website/src/examples",
     emptyOutDir: true,

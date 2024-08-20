@@ -9,44 +9,40 @@ export async function loadTimeHistoryFromCSV(
   filepath: string,
   dimension: number
 ): Promise<Record<number, LoadAnalysisInput>> {
-  const csvFile = new File([""], filepath);
-
   return new Promise<Record<number, LoadAnalysisInput>>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const text = String(reader.result);
+    fetch(filepath)
+      .then((res) => res.text())
+      .then((text) => {
+        if (!text) {
+          reject(new Error("No text found in file"));
+        }
 
-      if (!text) {
-        reject(new Error("No text found in file"));
-      }
+        const rows = text.split("\r\n").slice(1); // skip header
+        const timeHistoryAnalysisInputs: Record<number, LoadAnalysisInput> = {}; // use LoadAnalysisInput as a temporary solution
+        rows.forEach((row) => {
+          const data = row.split(",").map(Number);
+          const time: number = data[0];
+          const accelVal: number = data[1];
 
-      const rows = text.split("\n").slice(1); // skip header
-      const timeHistoryAnalysisInputs: Record<number, LoadAnalysisInput> = {}; // use LoadAnalysisInput as a temporary solution
-      rows.forEach((row) => {
-        const data = row.split(",").map(Number);
-        const time: number = data[0];
-        const accelVal: number = data[1];
+          let accelAnalysisInput: [
+            number,
+            number,
+            number,
+            number,
+            number,
+            number
+          ] = [0, 0, 0, 0, 0, 0];
+          accelAnalysisInput[dimension] = accelVal;
 
-        let accelAnalysisInput: [
-          number,
-          number,
-          number,
-          number,
-          number,
-          number
-        ] = [0, 0, 0, 0, 0, 0];
-        accelAnalysisInput[dimension] = accelVal;
+          timeHistoryAnalysisInputs[time] = {
+            node: -1,
+            load: accelAnalysisInput,
+          };
+        });
 
-        timeHistoryAnalysisInputs[time] = {
-          node: -1,
-          load: accelAnalysisInput,
-        };
+        console.log("Time history analysis", timeHistoryAnalysisInputs);
+
+        resolve(timeHistoryAnalysisInputs);
       });
-
-      resolve(timeHistoryAnalysisInputs);
-    };
-
-    reader.onerror = () => reject(new Error("Error reading file"));
-    reader.readAsText(csvFile);
   });
 }
