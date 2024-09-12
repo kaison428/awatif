@@ -25,6 +25,10 @@ const sectionGeometry: number[][] = [
   [0, 0]                     // Closing the section loop
 ];
 
+const materialProperties: number[][] = [
+  [10, 1000, 100],
+]
+
 const lines = new THREE.Line(
   new THREE.BufferGeometry(),
   new THREE.LineBasicMaterial()
@@ -41,6 +45,17 @@ sheetsObj.set("Section Geometry", {
     { field: "1", text: "Y-coordinate", editable: { type: "float" } },
   ],
 });
+
+sheetsObj.set("Material Properties", {
+  text: "Material Properties",
+  data: materialProperties,
+  columns: [
+    { field: "0", text: "Modulus of Elasticity", editable: { type: "float" } },
+    { field: "1", text: "Shear Modulus", editable: { type: "float" } },
+    { field: "2", text: "Mass Density", editable: { type: "float" } },
+  ],
+});
+
 
 // events
 const onSheetChange = ({ data }) => {
