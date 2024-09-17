@@ -1,6 +1,6 @@
 import { w2grid } from "w2ui";
-
 import "w2ui/w2ui-2.0.min.css";
+import "./styles.css";
 
 type Data = number[][] | Map<any, Record<string, any>>;
 
@@ -15,12 +15,13 @@ export function grid(
 
   const baseColumn = {
     size: "120px",
-    sortable: true,
     resizable: false,
   };
   const grid = new w2grid({
+    box: gridElm,
     name: getID(name),
     selectType: "cell",
+    show: { columnMenu: false },
     columns: [
       {
         ...baseColumn,
@@ -32,18 +33,21 @@ export function grid(
       ...columns.map((v) => ({ ...baseColumn, ...v })),
     ],
     records: toRecords(data),
+    contextMenu: [
+      { id: "delete", text: "Delete row", icon: "w2ui-icon-cross" },
+      { id: "Insert", text: "Insert row", icon: "w2ui-icon-plus" },
+    ],
     onDelete: (e) => e.preventDefault(),
   });
 
+  let recordsIndex = grid.records.length;
+
   // update
   gridElm.setAttribute("id", "grid");
-  gridElm.style.height = "250px";
-
-  grid.render(gridElm);
 
   // events
+  // on field edit
   grid.onChange = (e) => {
-    // update records
     const field = columns[e.detail.column - 1]["field"];
     grid.records[e.detail.index][field] = e.detail.value.new;
 
@@ -53,6 +57,27 @@ export function grid(
         data: toData(grid.records, Array.isArray(data)),
       });
   };
+
+  grid.onContextMenuClick = (e) => {
+    const menuItem = e.detail.menuItem.id;
+
+    if (menuItem == "delete")
+      grid.records = grid.records.filter((r) => r.recid != e.detail.recid);
+
+    if (menuItem == "Insert") grid.records.push({ recid: recordsIndex++ });
+
+    grid.refresh();
+
+    if (onChange)
+      onChange({
+        name: grid.name,
+        data: toData(grid.records, Array.isArray(data)),
+      });
+  };
+
+  // on size change
+  const resizeObserver = new ResizeObserver(() => grid.refresh());
+  resizeObserver.observe(gridElm);
 
   return gridElm;
 }

@@ -19,9 +19,11 @@
           [0, 0, 0],
           [1, 2, 3],
           [3, 4, 1],
-        ]
+        ],
+        (e) => console.log(e)
       );
 
+      nodeGridElm.style.height = "250px";
       document.body.appendChild(nodeGridElm);
 
       // Map case
@@ -45,10 +47,12 @@
           },
           { field: "mass", text: "Mass", editable: { type: "float" } },
         ],
-        materials
+        materials,
+        (e) => console.log(e)
       );
 
-      materialsGridElm.style.marginTop = "10px";
+      materialsGridElm.style.height = "250px";
+      materialsGridElm.style.top = "260px";
 
       document.body.appendChild(materialsGridElm);
     </script>

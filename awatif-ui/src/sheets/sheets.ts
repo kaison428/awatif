@@ -1,9 +1,7 @@
 import { w2tabs, w2ui } from "w2ui";
-import { collapsible } from "../common/collapsible/collapsible";
-
 import { grid } from "./grid/grid";
-
 import "w2ui/w2ui-2.0.min.css";
+import "./styles.css";
 
 export function sheets(
   sheets: Map<
@@ -18,7 +16,6 @@ export function sheets(
 ): HTMLElement {
   const sheetsElm = document.createElement("div");
   const tabsElm = document.createElement("div");
-  const collapsibleElm = collapsible("Sheets", sheetsElm);
 
   const onGridChange = ({ name, data }) => {
     if (onChange) onChange({ sheet: name, data });
@@ -33,7 +30,7 @@ export function sheets(
 
   const tabs = new w2tabs({
     box: tabsElm,
-    name: "sheets",
+    name: "tabs",
     active: tabsData[0].id,
     flow: "up",
     tabs: tabsData,
@@ -43,11 +40,6 @@ export function sheets(
   sheetsElm.id = "sheets";
   tabsElm.id = "tabs";
 
-  collapsibleElm.style.position = "absolute";
-  collapsibleElm.style.left = "8px";
-  collapsibleElm.style.bottom = "0px";
-  collapsibleElm.style.width = "50%";
-
   sheetsElm.append(grids.values().next().value, tabsElm);
 
   // events
@@ -56,5 +48,5 @@ export function sheets(
     w2ui[e.target].refresh();
   };
 
-  return collapsibleElm;
+  return sheetsElm;
 }
